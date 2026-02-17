@@ -1,11 +1,3 @@
-## `/05-architecture`
-
-1. **Reverse proxy with multiple services**
-   Goal: configure a reverse proxy that routes traffic to multiple dockerized services based on host or path.
-   Goal: simulate a complete microservices architecture locally using Docker Compose.
-
----
-
 ## **/06-reliability**
 
 2. **Project:**
@@ -153,4 +145,4 @@ Basic container security.
 
 **Level**: DevSecOps fundamentals
 
----
+--

@@ -30,6 +30,7 @@ jobs:
         TAG="${DATE}-${SHA}"
         echo "TAG=$TAG" >> $GITHUB_ENV
         echo "::set-output name=TAG::$TAG"
+  lint
 
   build:
     runs-on: ubuntu-latest
@@ -50,12 +51,10 @@ jobs:
     - name: Build Docker imgs
       run: |
         docker build -t ${{ env.DOCKERHUB_ORG_NAME }}/users:${{ needs.set-tags.outputs.TAG }} ./Projects/08-CICD/1-GH_Actions/apis/users
-        docker build -t ${{ env.DOCKERHUB_ORG_NAME }}/employees:${{ needs.set-tags.outputs.TAG }} ./Projects/08-CICD/1-GH_Actions/apis/employees
 
     - name: Save Docker images
       run: |
         docker save ${{ env.DOCKERHUB_ORG_NAME }}/users:${{ needs.set-tags.outputs.TAG }} -o users.tar
-        docker save ${{ env.DOCKERHUB_ORG_NAME }}/employees:${{ needs.set-tags.outputs.TAG }} -o employees.tar
     
     - name: Save Docker imgs (transfer to next job) 
       uses: actions/upload-artifact@v4
@@ -63,7 +62,6 @@ jobs:
         name: docker-images
         path: |
           users.tar
-          employees.tar
 
   test:
     runs-on: ubuntu-latest
@@ -78,12 +76,10 @@ jobs:
     - name: Load Docker imgs 
       run: |
         docker load -i users.tar
-        docker load -i employees.tar
 
     - name: Run python tests
       run: |
         docker run --rm ${{ env.DOCKERHUB_ORG_NAME }}/users:${{ needs.set-tags.outputs.TAG }} pytest
-        docker run --rm ${{ env.DOCKERHUB_ORG_NAME }}/employees:${{ needs.set-tags.outputs.TAG }} pytest
 
   publish:
     runs-on: ubuntu-latest
@@ -98,9 +94,7 @@ jobs:
     - name: Load Docker imgs 
       run: |
         docker load -i users.tar
-        docker load -i employees.tar
 
     - name: Publish imgs
       run: |
         docker push ${{ env.DOCKERHUB_ORG_NAME }}/users:${{ needs.set-tags.outputs.TAG }}
-        docker push ${{ env.DOCKERHUB_ORG_NAME }}/employees:${{ needs.set-tags.outputs.TAG }}
